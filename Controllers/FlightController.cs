@@ -68,12 +68,37 @@ namespace FlightBooking.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Search all available flights
+        /// </summary>
+        /// <remarks>
+        /// Displays all flights to the user
+        /// </remarks>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(IEnumerable<FlightRm>), 200)]
         public IEnumerable<FlightRm> Search()
         => flights;
 
+        /// <summary>
+        /// Find a flight
+        /// </summary>
+        /// <remarks>
+        /// Find specific flight based on matching Id
+        /// </remarks>
+        /// <param name="id">The identifier of the flight to be found.</param>
         [HttpGet("{id}")]
-        public FlightRm Find(Guid id)
-        => flights.SingleOrDefault(f => f.Id == id);
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(FlightRm), 200)]
+        public ActionResult<FlightRm> Find(Guid id)
+        {
+            var flight = flights.SingleOrDefault(f => f.Id == id);
+            if (flight == null)
+                return NotFound();
+            return Ok(flight);
+        }
     }
 }
